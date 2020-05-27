@@ -57,4 +57,4 @@ getUser()
   .catch((error) => {
     console.log(error);
   });
-5;
+;
