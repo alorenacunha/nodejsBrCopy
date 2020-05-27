@@ -1,53 +1,60 @@
-console.log("Hello world");
+const util = require("util");
+const getAddressAsync = util.promisify(getAddress);
+function getUser() {
+  return new Promise(function resolvePromise(resolve, reject) {
+    setTimeout(() => {
+      return resolve({
+        id: 1,
+        name: "Laura",
+        birthday: new Date()
+      });
 
-function getUser(callback) {
-  setTimeout(() => {
-    return callback(null, {
-      id: 1,
-      name: "Laura",
-      birthday: new Date(),
-      address: "rua dos bobos",
-    });
-  }, 1000);
+      return reject(new Error("ops"));
+    }, 1000);
+  });
 }
 
-function getPhone(id, callback) {
-  setTimeout(() => {
-    return callback(null, {
-      phone: "9083240-2342",
-      ddd: 31,
-    });
-  }, 1000);
+function getPhone(id) {
+  return new Promise(function resolvePromise(resolve, reject) {
+    setTimeout(() => {
+      return resolve({
+        phone: "9083240-2342",
+        ddd: 31,
+      });
+    }, 1000);
+  });
 }
-
 function getAddress(id, callback) {
   setTimeout(() => {
     return callback(null, {
-      address: "opa",
+        street: "dumbie's",
+        number: "0",
     });
-  });
+  }, 1000);
 }
 
-getUser(function resolveUser(error, user) {
-  if (error) {
-    console.error("error", error);
-    return;
-  }
-
-  getPhone(user.id, function resolvePhone(error1, phone) {
-    if (error1) {
-      console.error("error phone", error1);
-      return;
-    }
-    getAddress(user.id, function resolveAddress(error2, address) {
-      if (error2) {
-        console.log("error address", error2);
-        return;
-      }
-
-      console.log("user", user);
-      console.log("phone", phone);
-      console.log("address", address);
+getUser()
+  .then((user) => {
+    return getPhone(user.id).then((phone) => {
+      return {
+        user,
+        phone,
+      };
     });
+  })
+  .then((result) => {
+    return getAddressAsync(result.user.id).then((address) => {
+      return {
+        user: result.user,
+        phone: result.phone,
+        address,
+      };
+    });
+  })
+  .then((user) => {
+    console.log(user);
+  })
+  .catch((error) => {
+    console.log(error);
   });
-});
+5;
