@@ -6,7 +6,7 @@ function getUser() {
       return resolve({
         id: 1,
         name: "Laura",
-        birthday: new Date()
+        birthday: new Date(),
       });
 
       return reject(new Error("ops"));
@@ -27,34 +27,30 @@ function getPhone(id) {
 function getAddress(id, callback) {
   setTimeout(() => {
     return callback(null, {
-        street: "dumbie's",
-        number: "0",
+      street: "dumbie's",
+      number: "zero",
     });
   }, 1000);
 }
 
-getUser()
-  .then((user) => {
-    return getPhone(user.id).then((phone) => {
-      return {
-        user,
-        phone,
-      };
-    });
-  })
-  .then((result) => {
-    return getAddressAsync(result.user.id).then((address) => {
-      return {
-        user: result.user,
-        phone: result.phone,
-        address,
-      };
-    });
-  })
-  .then((user) => {
-    console.log(user);
-  })
-  .catch((error) => {
+main();
+async function main() {
+  try {
+    console.time("medida-promise");
+    const user = await getUser();
+    const result = await Promise.all([getPhone(user.id), getAddressAsync(user.id)]);
+    const phone = result[0];
+    const address = result[1];
+    console.log(`
+            user: ${user.name}
+            birthday: ${user.birth}
+            phone: ${phone.ddd}-${phone.phone}
+            address: 
+                street:${address.street}
+                number:${address.number}
+        `);
+    console.timeEnd("medida-promise");
+  } catch (eror) {
     console.log(error);
-  });
-;
+  }
+}
